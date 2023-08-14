@@ -1,10 +1,12 @@
 package lib
 
-import io.appium.java_client.AppiumDriver
+import io.appium.java_client.MobileElement
 import io.appium.java_client.android.AndroidDriver
 import io.appium.java_client.ios.IOSDriver
-import org.openqa.selenium.WebElement
+import org.openqa.selenium.chrome.ChromeDriver
+import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.remote.DesiredCapabilities
+import org.openqa.selenium.remote.RemoteWebDriver
 import java.net.URL
 
 open class Platform {
@@ -12,6 +14,7 @@ open class Platform {
     companion object {
         const val PLATFORM_IOS = "ios"
         const val PLATFORM_ANDROID = "android"
+        const val PLATFORM_MOBILE_WEB = "mobile_web"
         const val APPIUM_URL = "http://127.0.0.1:4723/wd/hub"
         var instance: Platform? = null
 
@@ -25,11 +28,14 @@ open class Platform {
         }
     }
 
-    fun getDriver(): AppiumDriver<WebElement> {
+    fun getDriver(): RemoteWebDriver {
         val URL = URL(APPIUM_URL)
-        if (this.isAndroid()) return AndroidDriver(URL, this.getAndroidDesiredCapabilities())
-        else if (this.isIOS()) return IOSDriver(URL, this.getIOSDesiredCapabilities())
-        else throw Exception("Cannot detect type of the Driver. Platform value: " + this.getPlatformVar())
+        return when {
+            this.isAndroid() -> AndroidDriver<MobileElement>(URL, this.getAndroidDesiredCapabilities())
+            this.isIOS() -> IOSDriver<MobileElement>(URL, this.getIOSDesiredCapabilities())
+            this.isMW() -> ChromeDriver(this.getMwChromeOptions())
+            else -> throw Exception("Cannot detect type of the driver. Platform value: ${this.getPlatformName()}")
+        }
     }
 
     fun isAndroid(): Boolean {
@@ -39,6 +45,8 @@ open class Platform {
     fun isIOS(): Boolean {
         return isPlatform(PLATFORM_IOS)
     }
+
+    fun isMW() = isPlatform(PLATFORM_MOBILE_WEB)
 
     private fun getAndroidDesiredCapabilities(): DesiredCapabilities {
         val capabilities = DesiredCapabilities()
@@ -68,11 +76,27 @@ open class Platform {
     }
 
     private fun isPlatform(my_platform: String): Boolean {
-        val platform = this.getPlatformVar()
+        val platform = this.getPlatformName()
         return my_platform == platform
     }
 
-    private fun getPlatformVar(): String {
-        return System.getenv("PLATFORM")
+
+    private fun getMwChromeOptions(): ChromeOptions {
+        val deviceMetrics = HashMap<String, Any>()
+        deviceMetrics["width"] = 360
+        deviceMetrics["height"] = 640
+        deviceMetrics["pixelRatio"] = 3.0
+
+        val mobileEmulation = HashMap<String, Any>()
+        mobileEmulation["deviceMetrics"] = deviceMetrics
+        mobileEmulation["userAgent"] = "Mozilla/5.0 (Linux; Android 4.2.1; en-us; Nexus 5 Build/JOP40D) " +
+                "AppleWebKit/535.19 (KHTML, like Gecko) " +
+                "Chrome/18.0.1025.166 Mobile Safari/535.19"
+
+        val chromeOptions = ChromeOptions()
+        chromeOptions.addArguments("window-size=340,640")
+        return chromeOptions
     }
+
+    fun getPlatformName() = System.getenv("PLATFORM")!!
 }

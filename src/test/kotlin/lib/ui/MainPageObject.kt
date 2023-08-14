@@ -9,13 +9,15 @@ import lib.Platform
 import org.junit.Assert
 import org.openqa.selenium.By
 import org.openqa.selenium.Dimension
+import org.openqa.selenium.JavascriptExecutor
 import org.openqa.selenium.WebElement
+import org.openqa.selenium.remote.RemoteWebDriver
 import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.WebDriverWait
 import java.time.Duration
 
 open class MainPageObject(
-    private val driver: AppiumDriver<WebElement>
+    private val driver: RemoteWebDriver
 ) {
 
     fun waitForElementPresent(locator: String, errorMessage: String, timeout: Long): WebElement {
@@ -73,29 +75,23 @@ open class MainPageObject(
         TestCase.assertTrue("'${textElement}' not contains '${text}'", textElement.contains(text))
     }
 
-    fun swipeUp(timeOfSwipe: Long, locator: String, errorMessage: String) {
-        val element: WebElement = waitForElementPresent(locator, errorMessage, 10)
-        val action: TouchAction<*> =  TouchAction(driver)
-        val size: Dimension = driver.manage().window().size
-        val x = size.width / 2
-        val startY  = (size.height * 0.8).toInt()
-        val endY  = (size.height * 0.2).toInt()
+    private fun swipeUp(timeOfSwipe: Long) {
+        if (driver is AppiumDriver<*>) {
+            val action =  TouchAction(driver)
+            val size = driver.manage()?.window()?.size
+            val x: Int? = size?.width?.div(2)
+            val startY = size?.height?.times(0.8)?.toInt()
+            val endY = size?.height?.times(0.2)?.toInt()
 
-        action
-            .press(PointOption.point(x, startY))
-            .waitAction(WaitOptions.waitOptions(Duration.ofMillis(timeOfSwipe)))
-            .moveTo(PointOption.point(x, endY))
-            .release()
-            .perform()
-        if (Platform.getInstance().isAndroid()) {
-            action.moveTo(PointOption.point(x, endY))
+            action
+                .press(PointOption.point(x!!, startY!!))
+                .waitAction(WaitOptions.waitOptions(Duration.ofMillis(timeOfSwipe)))
+                .moveTo(PointOption.point(x, endY!!)).release()
+                .perform()
         } else {
-            val offsetX = (-1 * element.size.getWidth())
-            action.moveTo(PointOption.point(0, offsetX))
+            println("Method swipeUp(() does nothing for platform ${Platform.getInstance().getPlatformName()}")
         }
-        action
-            .release()
-            .perform()
+
     }
 
     fun isElementLocationOnScreen(locator: String): Boolean {
@@ -111,7 +107,7 @@ open class MainPageObject(
             if (alreadySwipe > maxSwipes) {
                 Assert.assertTrue(errorMessage, this.isElementLocationOnScreen(locator))
             }
-            swipeUp(1, locator, errorMessage)
+            swipeUp(1)
             alreadySwipe++
         }
     }
@@ -126,27 +122,70 @@ open class MainPageObject(
                 return
             }
 
-            swipeUp(1, locator, errorMessage)
+            swipeUp(1)
             ++doneSwipes
         }
     }
 
     fun swipeElementToLeft(locator: String, errorMessage: String) {
-        val element: WebElement = waitForElementPresent(locator, errorMessage, 10)
-        val leftX = element.location.getX()
-        val rightX = leftX + element.size.width
-        val upperY = element.location.getY()
-        val lowerY = upperY + element.size.height
-        val middleY = (upperY + lowerY) / 2
+        if (driver is AppiumDriver<*>) {
+            val element = waitForElementPresent(locator, errorMessage, 10)
+            val leftX = element?.location?.getX()
+            println(leftX)
+            val rightX = leftX!! + element.size.getWidth()
+            println(rightX)
+            val upperY = element.location.getY()
+            println(upperY)
+            val lowerY = upperY + element.size.getHeight()
+            println(lowerY)
+            val middleY = (upperY + lowerY) / 2
+            println(middleY)
+            val action = TouchAction(driver)
+            action
+                .press(PointOption.point(rightX, middleY))
+                .waitAction(WaitOptions.waitOptions(Duration.ofMillis(150)))
+                .moveTo(PointOption.point(leftX, middleY))
+                .release()
+                .perform()
+        } else {
+            println("Method swipeElementToLeft() does nothing for platform ${Platform.getInstance().getPlatformName()}")
+        }
 
-        val action: TouchAction<*> = TouchAction(driver)
+    }
 
-        action
-            .press(PointOption.point(rightX, middleY))
-            .waitAction(WaitOptions.waitOptions(Duration.ofMillis(300)))
-            .moveTo(PointOption.point(leftX, middleY))
-            .release()
-            .perform()
+    fun scrollWebPageUp() {
+        if(Platform.getInstance().isMW()) {
+            val jSExecutor: JavascriptExecutor = driver as JavascriptExecutor
+            jSExecutor.executeScript("window.scrollBy(0,250)")
+        } else {
+            println(
+                "Method scrollWebPageUp() does nothing for platform ${Platform.getInstance().getPlatformName()}")
+        }
+    }
+
+    fun scrollWebPageTillElementNotVisible(locator: String, errorMessage: String, maxSwipes: Int) {
+        var alreadySwipe = 0
+        val element = this.waitForElementPresent(locator, errorMessage, timeout = 10)
+
+        while (!this.isElementLocatedOnTheScreen(locator)) {
+            scrollWebPageUp()
+            alreadySwipe++
+
+            if(alreadySwipe > maxSwipes) {
+                Assert.assertTrue(errorMessage, element!!.isDisplayed)
+            }
+        }
+    }
+
+    private fun isElementLocatedOnTheScreen(locator: String): Boolean {
+        var elementLocationByY = this.waitForElementPresent(locator, "Cannot find element", 1)?.location?.getY()
+        if (Platform.getInstance().isMW()) {
+            val jSExecutor: JavascriptExecutor = driver as JavascriptExecutor
+            val jsResult = jSExecutor.executeScript("return window.pageYOffset")
+            elementLocationByY = elementLocationByY?.minus(jsResult.toString().toInt())
+        }
+        val screenSizeByY = driver?.manage()?.window()?.size?.height
+        return elementLocationByY ?: 0 < screenSizeByY ?: 0
     }
 
     fun getAmountOfElements(locator: String): Int {
@@ -181,4 +220,25 @@ open class MainPageObject(
             throw java.lang.IllegalArgumentException("Cannot get type of locator. Locator $locator_with_type")
         }
     }
+
+    fun isElementPresent(locator: String) = this.getAmountOfElements(locator)?:0 > 0
+
+    fun tryClickElementWithFewAttempts(locator: String, errorMessage: String, amountOfAttempts: Int) {
+        var currentAttempts = 0
+        var needMoreAttempts = true
+
+        while(needMoreAttempts) {
+            try {
+                this.waitForElementAndClick(locator, errorMessage, 2)
+                needMoreAttempts = false
+            } catch (e: Exception) {
+                if(currentAttempts > amountOfAttempts) {
+                    this.waitForElementAndClick(locator, errorMessage, 2)
+                }
+            }
+            ++currentAttempts
+        }
+    }
+
+    fun getURL(): String? = driver?.currentUrl
 }

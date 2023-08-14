@@ -3,6 +3,7 @@ package tests
 import lib.CoreTestCase
 import lib.Platform
 import lib.ui.ArticlePageObject
+import lib.ui.AuthorizationPageObject
 import lib.ui.NavigationPageObject
 import lib.ui.SavedListsPageObject
 import lib.ui.SearchPageObject
@@ -39,12 +40,22 @@ class ArticleTests: CoreTestCase()  {
 
         val searchFirst = "Java"
         val searchSecond = "JavaScript"
+        val login= "adcher94"
+        val password = "adcher2712"
 
         // Поиск и сохранение первой статьи
         SearchPageObject.initSearchInput()
         SearchPageObject.typeSearchLine(searchFirst)
         SearchPageObject.clickAtSearchResult()
-        ArticlePageObject.clickButtonSave()
+        if(Platform.getInstance().isMW()) {
+            val auth = AuthorizationPageObject(driver)
+            auth.clickButton()
+            auth.enterLoginData(login, password)
+            auth.submitForm()
+            ArticlePageObject.waitForTitleElement()
+            assertEquals("We are not on the same page after login", searchFirst, ArticlePageObject.getArticleTitle())
+            ArticlePageObject.clickButtonSave()
+        } else ArticlePageObject.clickButtonSave()
 
         // Поиск и сохранение второй статьи
         SearchPageObject.initSearchInput()

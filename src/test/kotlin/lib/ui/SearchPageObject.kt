@@ -1,18 +1,22 @@
 package lib.ui
 
-import io.appium.java_client.AppiumDriver
-import org.openqa.selenium.WebElement
+import org.openqa.selenium.remote.RemoteWebDriver
 
-abstract class SearchPageObject(driver: AppiumDriver<WebElement>): MainPageObject(driver) {
+abstract class SearchPageObject(driver: RemoteWebDriver): MainPageObject(driver) {
 
-    abstract val SEARCH_INIT_ELEMENT: String
-    abstract val SEARCH_INPUT : String
-    abstract val SEARCH_RESULT_BY_SUBSTRING_TPL: String
+    abstract var SEARCH_RESULT_BY_TITLE_AND_DESCRIPTION_TPL: String
+    abstract var SEARCH_RESULT_TITLE_LIST: String
+    abstract var SEARCH_INPUT_ID: String
+    abstract var SEARCH_RESULT_BY_TITLE_TPL: String
+    abstract var SEARCH_RESULT_ELEMENT: String
+    abstract var SEARCH_INIT_ELEMENT: String
+    abstract var SEARCH_INPUT : String
+    abstract var SEARCH_RESULT_BY_SUBSTRING_TPL: String
     abstract val SEARCH_RESULT_CONTAINER: String
-    abstract val SEARCH_CANCEL_BUTTON: String
+    abstract var SEARCH_CANCEL_BUTTON: String
     open var CLOSE_SEARCH_SCREEN = ""
-    abstract val SEARCH_RESULT_LIST: String
-    abstract val SEARCH_EMPTY_RESULT_ELEMENT: String
+    abstract var SEARCH_RESULT_LIST: String
+    abstract var SEARCH_EMPTY_RESULT_ELEMENT: String
     open var SEARCH_RESULT_EMPTY_MESSAGE = ""
     open var SEARCH_RESULT = ""
 

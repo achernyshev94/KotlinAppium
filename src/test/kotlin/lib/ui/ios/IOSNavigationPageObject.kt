@@ -1,9 +1,8 @@
 package lib.ui.ios
 
-import io.appium.java_client.AppiumDriver
 import lib.ui.NavigationPageObject
-import org.openqa.selenium.WebElement
+import org.openqa.selenium.remote.RemoteWebDriver
 
-class IOSNavigationPageObject(driver: AppiumDriver<WebElement>): NavigationPageObject(driver) {
+class IOSNavigationPageObject(driver: RemoteWebDriver): NavigationPageObject(driver) {
     override val MY_LIST_LINK = "xpath://XCUIElementTypeButton[@name='Saved']"
 }

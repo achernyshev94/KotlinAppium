@@ -1,11 +1,10 @@
 package lib.ui.android
 
 
-import io.appium.java_client.AppiumDriver
 import lib.ui.ArticlePageObject
-import org.openqa.selenium.WebElement
+import org.openqa.selenium.remote.RemoteWebDriver
 
-class AndroidArticlePageObject(driver: AppiumDriver<WebElement>): ArticlePageObject(driver) {
+class AndroidArticlePageObject(driver: RemoteWebDriver): ArticlePageObject(driver) {
 
     override val TITLE = "id:org.wikipedia:id/view_page_title_text"
     override val FOOTER_ELEMENT = "xpath://*[@text='View page in browser']"

@@ -1,9 +1,8 @@
 package lib.ui
 
-import io.appium.java_client.AppiumDriver
-import org.openqa.selenium.WebElement
+import org.openqa.selenium.remote.RemoteWebDriver
 
-class WelcomePageObject(driver: AppiumDriver<WebElement>) : MainPageObject(driver) {
+class WelcomePageObject(driver: RemoteWebDriver) : MainPageObject(driver) {
 
     private val STEP_LEARN_MORE_LINK = "xpath://XCUIElementTypeButton[@name='Learn more about Wikipedia']"
     private val STEP_NEW_WAYS_TO_EXPLORER_TEXT = "xpath://XCUIElementTypeStaticText[@name='New ways to explore']"

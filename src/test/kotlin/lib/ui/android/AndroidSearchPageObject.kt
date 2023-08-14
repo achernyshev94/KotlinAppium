@@ -1,10 +1,9 @@
 package lib.ui.android
 
-import io.appium.java_client.AppiumDriver
 import lib.ui.SearchPageObject
-import org.openqa.selenium.WebElement
+import org.openqa.selenium.remote.RemoteWebDriver
 
-class AndroidSearchPageObject(driver: AppiumDriver<WebElement>): SearchPageObject(driver) {
+class AndroidSearchPageObject(driver: RemoteWebDriver): SearchPageObject(driver) {
 
     override val SEARCH_INIT_ELEMENT = "id:org.wikipedia:id/search_container"
     override val SEARCH_INPUT = "id:org.wikipedia:id/search_src_text"

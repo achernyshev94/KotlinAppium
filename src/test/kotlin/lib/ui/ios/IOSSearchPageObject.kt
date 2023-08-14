@@ -1,11 +1,10 @@
 package lib.ui.ios
 
 
-import io.appium.java_client.AppiumDriver
 import lib.ui.SearchPageObject
-import org.openqa.selenium.WebElement
+import org.openqa.selenium.remote.RemoteWebDriver
 
-class IOSSearchPageObject(driver: AppiumDriver<WebElement>): SearchPageObject(driver) {
+class IOSSearchPageObject(driver: RemoteWebDriver): SearchPageObject(driver) {
 
     override val SEARCH_INIT_ELEMENT = "xpath://XCUIElementTypeSearchField[@name='Search Wikipedia']"
     override val SEARCH_INPUT = "xpath://XCUIElementTypeSearchField[@label='Search Wikipedia']"

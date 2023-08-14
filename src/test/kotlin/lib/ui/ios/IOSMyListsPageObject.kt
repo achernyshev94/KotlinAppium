@@ -1,10 +1,9 @@
 package lib.ui.ios
 
-import io.appium.java_client.AppiumDriver
 import lib.ui.SavedListsPageObject
-import org.openqa.selenium.WebElement
+import org.openqa.selenium.remote.RemoteWebDriver
 
-class IOSMyListPageObject(driver: AppiumDriver<WebElement>): SavedListsPageObject(driver) {
+class IOSMyListPageObject(driver: RemoteWebDriver): SavedListsPageObject(driver) {
 
     override var ARTICLE_BY_TITLE_TPL = "xpath://XCUIElementTypeStaticText[contains(@name='{TITLE}')]"
     override var BUTTON_CLOSE_SYNC_MY_ARTICLES = "xpath://XCUIElementTypeButton[@name='Close']"
