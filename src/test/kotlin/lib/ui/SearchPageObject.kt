@@ -1,6 +1,7 @@
 package lib.ui
 
 import org.openqa.selenium.remote.RemoteWebDriver
+import io.qameta.allure.Step
 
 abstract class SearchPageObject(driver: RemoteWebDriver): MainPageObject(driver) {
 
@@ -26,6 +27,7 @@ abstract class SearchPageObject(driver: RemoteWebDriver): MainPageObject(driver)
     }
     // TEMPLATES METHODS
 
+    @Step("Инициализация поля ввода поиска")
     fun initSearchInput() {
         this.waitForElementAndClick(SEARCH_INIT_ELEMENT, "Cannot find and click search init element", 5)
         this.waitForElementPresent(SEARCH_INIT_ELEMENT, "Cannot find search input after clicking search init element", 5)
@@ -39,14 +41,17 @@ abstract class SearchPageObject(driver: RemoteWebDriver): MainPageObject(driver)
         this.waitForElementAndClick(SEARCH_CANCEL_BUTTON, "Cannot find and click cancel button", 5)
     }
 
+    @Step("Ожидание метки пустого результата поиска")
     fun waitForSearchResultEmptyMessage() {
         this.waitForElementPresent(SEARCH_RESULT_EMPTY_MESSAGE, "Cannot find empty message at search result", 5)
     }
 
+    @Step("Печать поискового запроса '{search_line}' в поле поиска")
     fun typeSearchLine(search_line: String) {
         this.waitForElementAndSendKeys(SEARCH_INPUT, search_line, "Cannot find and type into search line", 5)
     }
 
+    @Step("Ожидание поискового результата на подстроку '{substring}'")
     fun waitForSearchResult(substring: String) {
         val search_result_substring = getResultSearchElement(substring)
         this.waitForElementPresent(search_result_substring, "Cannot find search result with substring + $substring", 5)
@@ -57,10 +62,12 @@ abstract class SearchPageObject(driver: RemoteWebDriver): MainPageObject(driver)
         this.waitForElementAndClick(search_result_substring, "Cannot find and click search result with substring + $substring", 10)
     }
 
+    @Step("Клик на статью из выдачи'")
     fun clickAtSearchResult() {
         this.waitForElementAndClick(SEARCH_RESULT, "Cannot find and click search result", 10)
     }
 
+    @Step("Клик на кнопку отмены поиска")
     fun clickCancelSearch() {
         this.waitForElementAndClick(SEARCH_CANCEL_BUTTON, "Cannot find and click search cancel button", 10)
     }

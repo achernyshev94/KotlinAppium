@@ -3,6 +3,7 @@ package lib.ui
 import lib.Platform
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.remote.RemoteWebDriver
+import io.qameta.allure.Step
 
 abstract class SavedListsPageObject(driver: RemoteWebDriver): MainPageObject(driver) {
 
@@ -28,6 +29,7 @@ abstract class SavedListsPageObject(driver: RemoteWebDriver): MainPageObject(dri
         this.waitForElementAndClick(SAVED_FOLDER, "Cannot find and click on saved folder", 5)
     }
 
+    @Step("Свайп для удаления сохраненной статьи с заголовком")
     fun swipeArticle(searchResult: String) {
         waitForArticleToAppear(searchResult)
         val article = getArticleName(searchResult)
@@ -109,11 +111,13 @@ abstract class SavedListsPageObject(driver: RemoteWebDriver): MainPageObject(dri
         this.waitForArticleToDisappearByTitle(articleTitle)
     }
 
+    @Step("Ожидание появления заголовка '{articleTitle}' в статье")
     private fun waitForArticleToAppearByTitle(articleTitle: String) {
         val articleTitleXpath = getSavedArticleXpathByTitle(articleTitle)
         this.waitForElementPresent(articleTitleXpath, "Cannot find saved article by title $articleTitle", 15)
     }
 
+    @Step("Ожидание исчезновения заголовка '{articleTitle}' в статье")
     private fun waitForArticleToDisappearByTitle(articleTitle: String) {
         val articleTitleXpath = getSavedArticleXpathByTitle(articleTitle)
         this.waitForElementNotPresent(articleTitleXpath, "Saved article still present with title $articleTitle", 20)

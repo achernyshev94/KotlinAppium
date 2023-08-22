@@ -2,6 +2,7 @@ package lib.ui
 
 import lib.Platform
 import org.openqa.selenium.remote.RemoteWebDriver
+import io.qameta.allure.Step
 
 abstract  class NavigationPageObject(driver: RemoteWebDriver): MainPageObject(driver) {
 
@@ -25,6 +26,7 @@ abstract  class NavigationPageObject(driver: RemoteWebDriver): MainPageObject(dr
         this.waitForElementAndClick(BUTTON_SAVED, "Cannot find and click button Saved", 5)
     }
 
+    @Step("Открытие выдвигающегося меню")
     fun openNavigation() {
         if(Platform.getInstance().isMW()) {
             this.waitForElementAndClick(OPEN_NAVIGATION, "Cannot find and click open navigatin button", 5)
@@ -35,6 +37,7 @@ abstract  class NavigationPageObject(driver: RemoteWebDriver): MainPageObject(dr
         }
     }
 
+    @Step("Клик на пункт меню 'My List'")
     fun clickMyLists() {
         if(Platform.getInstance().isMW()) {
             this.tryClickElementWithFewAttempts(MY_LIST_LINK, "Cannot find navigation button to My List", 5)
