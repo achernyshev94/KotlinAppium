@@ -4,16 +4,22 @@ import io.appium.java_client.AppiumDriver
 import io.appium.java_client.TouchAction
 import io.appium.java_client.touch.WaitOptions
 import io.appium.java_client.touch.offset.PointOption
-import junit.framework.TestCase
+import io.qameta.allure.Attachment
 import lib.Platform
+import org.apache.commons.io.FileUtils
 import org.junit.Assert
 import org.openqa.selenium.By
-import org.openqa.selenium.Dimension
 import org.openqa.selenium.JavascriptExecutor
+import org.openqa.selenium.OutputType
+import org.openqa.selenium.TakesScreenshot
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.remote.RemoteWebDriver
 import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.WebDriverWait
+import java.io.File
+import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.time.Duration
 
 open class MainPageObject(
@@ -43,7 +49,7 @@ open class MainPageObject(
     fun assertElementHasText(locator: String, text: String, errorMessage: String, timeout: Long) {
         val element: WebElement = waitForElementPresent(locator, errorMessage, timeout)
         val textElement = element.text
-        TestCase.assertEquals(
+        Assert.assertEquals(
             "We see unexpected text",
             text,
             textElement
@@ -72,7 +78,7 @@ open class MainPageObject(
     fun waitForElementAndCheckContainsText(locator: String, text: Regex, errorMessage: String, timeout: Long) {
         val element: WebElement = waitForElementPresent(locator, errorMessage, timeout)
         val textElement = element.text
-        TestCase.assertTrue("'${textElement}' not contains '${text}'", textElement.contains(text))
+        Assert.assertTrue("'${textElement}' not contains '${text}'", textElement.contains(text))
     }
 
     private fun swipeUp(timeOfSwipe: Long) {
@@ -241,4 +247,28 @@ open class MainPageObject(
     }
 
     fun getURL(): String? = driver?.currentUrl
+
+    fun takeScreenShot(name: String): String {
+        val ts: TakesScreenshot = (this.driver as TakesScreenshot)
+        val source = ts.getScreenshotAs(OutputType.FILE)
+        val path = System.getProperty("user.dir") + "/" + name + "_screenshot.png"
+        try {
+            FileUtils.copyFile(source, File(path))
+            println("The screenshot was taken: $path")
+        } catch (e: Exception) {
+            println("Cannot take screenshot. Error: ${e.message}")
+        }
+        return path
+    }
+
+    @Attachment
+    fun screenshot(path: String): ByteArray {
+        var bytes =  byteArrayOf()
+        try {
+            bytes = Files.readAllBytes(Paths.get(path))
+        } catch (e: IOException) {
+            println("Cannot get bytes from screenshot. Error: ${e.message}")
+        }
+        return bytes
+    }
 }

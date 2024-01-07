@@ -2,23 +2,27 @@ package lib
 
 import io.appium.java_client.AppiumDriver
 import io.appium.java_client.android.AndroidDriver
-import junit.framework.TestCase
 import lib.ui.WelcomePageObject
+import org.junit.Before
+import io.qameta.allure.Step
+import org.junit.After
 import org.openqa.selenium.ScreenOrientation
-import org.openqa.selenium.WebElement
-import org.openqa.selenium.remote.DesiredCapabilities
 import org.openqa.selenium.remote.RemoteWebDriver
-import java.net.URL
+import java.io.FileOutputStream
+import java.util.Properties
 import java.util.concurrent.TimeUnit
 
-open class CoreTestCase: TestCase() {
+open class CoreTestCase {
 
     lateinit var driver: RemoteWebDriver
 
+    @Before
+    @Step("Run driver and session")
     override fun setUp() {
         super.setUp()
 
         driver = Platform.getInstance().getDriver()
+        this.createAllurePropertyFile()
         this.rotateScreenPortrait()
         this.skipWelcomePageForIOSApp()
 
@@ -31,7 +35,7 @@ open class CoreTestCase: TestCase() {
         }
         this.openWikiWebPageForMobileWeb()
     }
-
+    @Step("Rotate screen to portrait mode")
     protected fun rotateScreenPortrait() {
         if (driver is AppiumDriver<*>) {
             (driver as AppiumDriver<*>).rotate(ScreenOrientation.PORTRAIT)
@@ -42,6 +46,7 @@ open class CoreTestCase: TestCase() {
         }
     }
 
+    @Step("Rotate screen to landscape mode")
     protected fun rotateScreenLandscape() {
         if (driver is AppiumDriver<*>) {
             (driver as AppiumDriver<*>).rotate(ScreenOrientation.LANDSCAPE)
@@ -59,12 +64,15 @@ open class CoreTestCase: TestCase() {
             WelcomePageObject.clickSkip()
         }
 
+        @After
+        @Step("Remove driver and session")
         fun tearDown() {
             driver.quit()
             super.tearDown()
         }
     }
 
+    @Step("Открыть главную страницу сайта Википедия (только MobileWeb)")
     private fun openWikiWebPageForMobileWeb() {
         if (Platform.getInstance().isMW()) {
             driver?.manage()?.timeouts()?.implicitlyWait(10, TimeUnit.SECONDS);
@@ -75,5 +83,22 @@ open class CoreTestCase: TestCase() {
             )
         }
 
+    }
+
+    private fun createAllurePropertyFile() {
+        val path = System.getProperty("allure.results.directory")
+        try {
+            val props = Properties()
+            val fos = FileOutputStream("$path/environment.properties")
+            println(Platform.getInstance().getPlatformName())
+            props.setProperty("Environment", Platform.getInstance().getPlatformName())
+            props.store(fos, "See Wiki Allure")
+            println(props.toString())
+            fos.close()
+        } catch (e: Exception) {
+            System.err.println("IO problem when writing allure properties file")
+            e.printStackTrace()
+
+        }
     }
 }

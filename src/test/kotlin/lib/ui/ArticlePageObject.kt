@@ -3,6 +3,7 @@ package lib.ui
 import lib.Platform
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.remote.RemoteWebDriver
+import io.qameta.allure.Step
 
 abstract class ArticlePageObject(driver: RemoteWebDriver) : MainPageObject(driver) {
 
@@ -23,26 +24,29 @@ abstract class ArticlePageObject(driver: RemoteWebDriver) : MainPageObject(drive
     fun getArticleName(article_title: String): String {
         return TITLE_IOS_FOR_ASSERT.replace("{TITLE}", article_title)
     }
-
+    @Step("Утверждение, что заголовок статьи присутствует")
     fun titleIsPresent(article_title: String){
         val first_article_xpath = getArticleName(article_title)
         this.waitForElementPresent(first_article_xpath,"Article not present",10)
     }
 
+    @Step("Ожидание появления заголовка")
     fun waitForTitleElement(): WebElement {
         return this.waitForElementPresent(TITLE, "Cannot find article title on page", 15)
     }
 
+    @Step("Получение заголовка статьи")
     fun getArticleTitle(): String?
     {
         val titleElement = waitForTitleElement()
+        screenshot(this.takeScreenShot("at"))
         return when {
             Platform.getInstance().isAndroid() -> titleElement?.getAttribute("text")
             Platform.getInstance().isMW() -> titleElement?.text
             else -> throw Exception("Unknown platform")
         }
     }
-
+    @Step("Тап на кнопку сохранить")
     fun clickButtonSave() {
         this.waitForElementAndClick(BUTTON_SAVE, "Cannot find and click button Save", 5)
     }
@@ -54,7 +58,7 @@ abstract class ArticlePageObject(driver: RemoteWebDriver) : MainPageObject(drive
         }
         this.waitForElementAndClick(OPTIONS_ADD_TO_MY_LIST_BUTTON, "Cannot find option to add article to reading list", 5)
     }
-
+    @Step("Удаление сохраненной статьи")
     private fun removeArticleFromSavedIfItAdded() {
         if (this.isElementPresent(OPTIONS_REMOVE_FROM_MY_LIST_BUTTON)) {
             this.waitForElementAndClick(OPTIONS_REMOVE_FROM_MY_LIST_BUTTON, "Cannot click to remove an article from saved", 2)
